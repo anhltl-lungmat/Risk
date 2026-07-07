@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BaoKim Risk · Thẩm định merchant (KSNB)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Public Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+        },
+        colors: {
+          slate: { 150: '#e8edf3' },
+        },
+      },
+    },
+  };
+</script>
+<style>
+  html, body, #root { height: 100%; }
+  body {
+    font-family: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+    background: #f8fafc;
+    color: #0f172a;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  :root {
+    --bk-primary: #006EA8;
+    --bk-primary-tint: rgba(0,110,168,0.08);
+    --bk-primary-soft: rgba(0,110,168,0.14);
+    --bk-primary-glow: rgba(0,110,168,0.40);
+    --bk-primary-lite: #61a5c9;
+    --bk-secondary: #32AC4A;
+    /* Vuexy semantic palette (badges) */
+    --sem-primary: #7367f0;
+    --sem-secondary: #a8aaae;
+    --sem-success: #28c76f;
+    --sem-danger: #ea5455;
+    --sem-warning: #ff9f42;
+    --sem-info: #00cfe8;
+    --sem-dark: #4b4b4b;
+  }
+  /* Solid badge variants — exact semantic hues, white text (style mẫu Vuexy) */
+  .bdg-success, .bdg-danger, .bdg-warning, .bdg-info, .bdg-secondary, .bdg-dark, .bdg-primary {
+    color:#fff !important; border-color:transparent !important; border-radius:6px;
+  }
+  .bdg-success { background:var(--sem-success); }
+  .bdg-danger { background:var(--sem-danger); }
+  .bdg-warning { background:var(--sem-warning); }
+  .bdg-info { background:var(--sem-info); }
+  .bdg-secondary { background:var(--sem-secondary); }
+  .bdg-dark { background:var(--sem-dark); }
+  .bdg-primary { background:var(--sem-primary); }
+  /* Solid style không dùng chấm tròn */
+  .bdg-dot { display:none !important; }
+  /* Custom scrollbars */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(15,23,42,0.12); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(15,23,42,0.22); }
+  /* Toast animation */
+  @keyframes toast-in {
+    from { transform: translateY(8px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .animate-toast-in { animation: toast-in 0.18s ease-out both; }
+  /* Full-screen appraisal entrance */
+  @keyframes mrc-screen-in {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  .mrc-screen-in { animation: mrc-screen-in 0.22s ease-out both; }
+  /* Slide-over panel (nhật ký xử lý detail) */
+  @keyframes bl-slideover-in {
+    from { transform: translateX(24px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  .bl-slideover-in { animation: bl-slideover-in 0.2s ease-out both; }
+  /* Custom borders to support extended slate */
+  .border-slate-150 { border-color: #e8edf3; }
+  .bg-slate-150 { background-color: #e8edf3; }
+  /* Helper for line-clamp 2 (Tailwind v3 plugin not loaded via CDN by default) */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  /* Bump arbitrary text-[Npx] utilities one notch larger for readability */
+  .text-\[9px\]  { font-size: 10px !important; line-height: 1.4 !important; }
+  .text-\[10px\] { font-size: 11px !important; line-height: 1.4 !important; }
+  .text-\[11px\] { font-size: 12px !important; line-height: 1.45 !important; }
+  .text-\[12px\] { font-size: 13px !important; line-height: 1.5 !important; }
+  .text-\[13px\] { font-size: 14px !important; line-height: 1.5 !important; }
+  .text-\[14px\] { font-size: 15px !important; line-height: 1.5 !important; }
+  .text-\[15px\] { font-size: 16px !important; line-height: 1.5 !important; }
+  /* Sticky columns for merchant table */
+  .stk { position: sticky; background-color: #ffffff; z-index: 2; }
+  .stk-head { background-color: #f1f5f9; z-index: 3; }
+  .stk-l-shadow { box-shadow: 6px 0 8px -6px rgba(15,23,42,0.12); }
+  .stk-r-shadow { box-shadow: -6px 0 8px -6px rgba(15,23,42,0.12); }
+  tbody tr:hover .stk { background-color: #ebf4fa; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="mock-data.js"></script>
+<script src="phieu-forms.js"></script>
+<script src="mrc-criteria.js"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="components.jsx"></script>
+<script type="text/babel" src="date-range-picker.jsx"></script>
+<script type="text/babel" src="table-view.jsx"></script>
+<script type="text/babel" src="blacklist-detail.jsx"></script>
+<script type="text/babel" src="blacklist-screens.jsx"></script>
+<script type="text/babel" src="blacklist-log.jsx"></script>
+<script type="text/babel" src="scoring-log.jsx"></script>
+<script type="text/babel" src="appraisal-taxonomy.jsx"></script>
+<script type="text/babel" src="appraisal-queue.jsx"></script>
+<script type="text/babel" src="appraisal-history.jsx"></script>
+<script type="text/babel" src="detail-view.jsx"></script>
+<script type="text/babel" src="ap-controls.jsx"></script>
+<script type="text/babel" src="mrc-view.jsx"></script>
+<script type="text/babel" src="appraisal-view.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
+</body>
+</html>
